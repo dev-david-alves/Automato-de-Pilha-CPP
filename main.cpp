@@ -91,37 +91,90 @@ public:
   };
 
   // Criar árvore de nós
-  Arvore *criarArvore(Arvore *raiz, string palavra, string pilha)
+  Arvore *criarArvore(Arvore *raiz)
   {
-    if (raiz->palavra.length() == 0)
-    {
-      cout << "(q" << raiz->estado << ", e, " << raiz->pilha << "0; ";
-    }
-    else
-    {
-      cout << "(q" << raiz->estado << ", " << raiz->palavra << ", " << raiz->pilha << "0; ";
-    }
-
     for (int i = 0; i < regras.size(); i++)
     {
-      // Preciso corrigir a formação da nova palavra.
-      string novaStringPilha = pilha;
-      if (regras[i].stringPilha[0] != 'e' && regras[i].stringPilha[0] != 'Z')
+      if (raiz->estado == regras[i].estPartida)
       {
-        novaStringPilha = regras[i].stringPilha[0] + pilha;
-      }
+        if (raiz->palavra[0] == regras[i].simbEntrada || regras[i].simbEntrada == 'e')
+        {
+          if (raiz->pilha[0] == regras[i].simbPilha)
+          {
+            if (raiz->palavra.length() > 0 && regras[i].simbEntrada != 'e')
+            {
+              string novaPilha = "";
 
-      if (regras[i].estPartida == raiz->estado && (regras[i].simbEntrada == palavra[0] || regras[i].simbEntrada == 'e') &&
-          regras[i].simbPilha == pilha[0] && palavra.length() > 0)
-      {
-        Arvore *filho = new Arvore(regras[i].estChegada, palavra.substr(1), novaStringPilha);
-        raiz->addFilho(filho);
+              if (regras[i].stringPilha[0] == 'Z')
+              {
+                novaPilha = raiz->pilha;
+              }
+              else if (regras[i].stringPilha[0] == 'e')
+              {
+                novaPilha = raiz->pilha.substr(1);
+              }
+              else
+              {
+                novaPilha = regras[i].stringPilha.substr(0, regras[i].stringPilha.length() - 1) + raiz->pilha;
+              }
 
-        criarArvore(filho, palavra.substr(1), novaStringPilha);
+              Arvore *filho = new Arvore(regras[i].estChegada, raiz->palavra.substr(1), novaPilha);
+              raiz->addFilho(filho);
+              criarArvore(filho);
+            }
+            else
+            {
+              string novaPilha = "";
+
+              if (regras[i].stringPilha[0] == 'Z')
+              {
+                novaPilha = raiz->pilha;
+              }
+              else if (regras[i].stringPilha[0] == 'e')
+              {
+                novaPilha = raiz->pilha.substr(1);
+              }
+              else
+              {
+                novaPilha = regras[i].stringPilha.substr(0, regras[i].stringPilha.length() - 1) + raiz->pilha;
+              }
+
+              Arvore *filho = new Arvore(regras[i].estChegada, raiz->palavra, novaPilha);
+              raiz->addFilho(filho);
+              criarArvore(filho);
+            }
+          }
+        }
       }
     }
 
     return raiz;
+  }
+
+  // Imprimir árvore
+  void imprimirArvore(Arvore *raiz)
+  {
+    string final = "";
+    if (raiz->filhos.size() != 0)
+    {
+      final = "; ";
+    }
+
+    if (raiz->palavra.length() == 0)
+    {
+      cout << "(" << raiz->estado << ", e, " << raiz->pilha << final;
+    }
+    else
+    {
+      cout << "(" << raiz->estado << ", " << raiz->palavra << ", " << raiz->pilha << final;
+    }
+
+    for (int i = 0; i < raiz->filhos.size(); i++)
+    {
+      imprimirArvore(raiz->filhos[i]);
+    }
+
+    cout << ")";
   }
 };
 
@@ -143,7 +196,7 @@ int main()
   // número do estado inicial (entre 0 e N-1)
   int estadoInicial = 0;
   // símbolo inicial da pilha
-  char simboloInicialPilha = 'Z';
+  string simboloInicialPilha = "Z";
 
   // Quantidade de estados finais
   int qntdEstadosFinais = 1;
@@ -155,8 +208,9 @@ int main()
 
   // cria o autômato
   AP automato = AP();
-  Arvore *raiz = new Arvore(0, palavra, "Z");
-  Arvore *arvore = automato.criarArvore(raiz, raiz->palavra, "Z");
+  Arvore *raiz = new Arvore(estadoInicial, palavra, simboloInicialPilha);
+  Arvore *arvore = automato.criarArvore(raiz);
+  automato.imprimirArvore(raiz);
 
   return 0;
 }
