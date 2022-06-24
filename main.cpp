@@ -48,46 +48,12 @@ struct Arvore
 class AP
 {
 public:
-  // Quantidade de transições
-  int qntdTransicoes = 12;
-
-  int estPartida, estChegada;
-  char simbEntrada, simbPilha;
-  string stringPilha;
-
   // Regras
   vector<Regras> regras;
 
-  AP()
+  AP(vector<Regras> regras)
   {
-    // for (int i = 0; i < qntdTransicoes; i++)
-    // {
-    //   cout << "Digite o estado de partida: ";
-    //   cin >> estPartida;
-    //   cout << "Digite o estado de chegada: ";
-    //   cin >> estChegada;
-    //   cout << "Digite o símbolo de entrada: ";
-    //   cin >> simbEntrada;
-    //   cout << "Digite o símbolo da pilha: ";
-    //   cin >> simbPilha;
-    //   cout << "Digite a string a ser escrita na pilha: ";
-    //   cin >> stringPilha;
-
-    //   regras.push_back(Regras(estPartida, estChegada, simbEntrada, simbPilha, stringPilha));
-    // }
-
-    regras.push_back(Regras(0, 0, '0', 'Z', "0Z"));
-    regras.push_back(Regras(0, 0, '1', 'Z', "1Z"));
-    regras.push_back(Regras(0, 0, '0', '0', "00"));
-    regras.push_back(Regras(0, 0, '0', '1', "01"));
-    regras.push_back(Regras(0, 0, '1', '0', "10"));
-    regras.push_back(Regras(0, 0, '1', '1', "11"));
-    regras.push_back(Regras(0, 1, 'e', 'Z', "Z"));
-    regras.push_back(Regras(0, 1, 'e', '0', "0"));
-    regras.push_back(Regras(0, 1, 'e', '1', "1"));
-    regras.push_back(Regras(1, 1, '0', '0', "e"));
-    regras.push_back(Regras(1, 1, '1', '1', "e"));
-    regras.push_back(Regras(1, 2, 'e', 'Z', "Z"));
+    this->regras = regras;
   };
 
   // Criar árvore de nós
@@ -101,44 +67,30 @@ public:
         {
           if (raiz->pilha[0] == regras[i].simbPilha)
           {
+            // Monta a nova pilha
+            string novaPilha = "";
+            if (regras[i].stringPilha[0] == 'Z')
+            {
+              novaPilha = raiz->pilha;
+            }
+            else if (regras[i].stringPilha[0] == 'e')
+            {
+              novaPilha = raiz->pilha.substr(1);
+            }
+            else
+            {
+              novaPilha = regras[i].stringPilha.substr(0, regras[i].stringPilha.length() - 1) + raiz->pilha;
+            }
+
+            // Cria o novo filho
             if (raiz->palavra.length() > 0 && regras[i].simbEntrada != 'e')
             {
-              string novaPilha = "";
-
-              if (regras[i].stringPilha[0] == 'Z')
-              {
-                novaPilha = raiz->pilha;
-              }
-              else if (regras[i].stringPilha[0] == 'e')
-              {
-                novaPilha = raiz->pilha.substr(1);
-              }
-              else
-              {
-                novaPilha = regras[i].stringPilha.substr(0, regras[i].stringPilha.length() - 1) + raiz->pilha;
-              }
-
               Arvore *filho = new Arvore(regras[i].estChegada, raiz->palavra.substr(1), novaPilha);
               raiz->addFilho(filho);
               criarArvore(filho);
             }
             else
             {
-              string novaPilha = "";
-
-              if (regras[i].stringPilha[0] == 'Z')
-              {
-                novaPilha = raiz->pilha;
-              }
-              else if (regras[i].stringPilha[0] == 'e')
-              {
-                novaPilha = raiz->pilha.substr(1);
-              }
-              else
-              {
-                novaPilha = regras[i].stringPilha.substr(0, regras[i].stringPilha.length() - 1) + raiz->pilha;
-              }
-
               Arvore *filho = new Arvore(regras[i].estChegada, raiz->palavra, novaPilha);
               raiz->addFilho(filho);
               criarArvore(filho);
@@ -181,33 +133,67 @@ public:
 int main()
 {
   // quantidade de estados - N
-  int qntdEstados = 3;
-
+  int qntdEstados;
+  cin >> qntdEstados;
   // Quantidade de símbolos do alfabeto de entrada
-  int qntdSimbolos = 2;
+  int qntdSimbolosEntrada;
+  cin >> qntdSimbolosEntrada;
   // símbolos do alfabeto de entrada
-  char alfabeto[qntdSimbolos] = {'0', '1'};
-
+  char alfabetoEntrada[qntdSimbolosEntrada];
+  for (int i = 0; i < qntdSimbolosEntrada; i++)
+  {
+    cin >> alfabetoEntrada[i];
+  }
   // Quantidade de símbolos do alfabeto da pilha
-  int qntdSimbolosPilha = 3;
+  int qntdSimbolosPilha;
+  cin >> qntdSimbolosPilha;
   // símbolos do alfabeto da pilha
-  char alfabetoPilha[qntdSimbolosPilha] = {'0', '1', 'Z'};
-
+  char alfabetoPilha[qntdSimbolosPilha];
+  for (int i = 0; i < qntdSimbolosPilha; i++)
+  {
+    cin >> alfabetoPilha[i];
+  }
   // número do estado inicial (entre 0 e N-1)
-  int estadoInicial = 0;
+  int estadoInicial;
+  cin >> estadoInicial;
   // símbolo inicial da pilha
-  string simboloInicialPilha = "Z";
+  string simboloInicialPilha;
+  cin >> simboloInicialPilha;
 
   // Quantidade de estados finais
-  int qntdEstadosFinais = 1;
+  int qntdEstadosFinais;
+  cin >> qntdEstadosFinais;
   // estados finais
-  int estadosFinais[qntdEstadosFinais] = {2};
+  int estadosFinais[qntdEstadosFinais];
+  for (int i = 0; i < qntdEstadosFinais; i++)
+  {
+    cin >> estadosFinais[i];
+  }
+
+  // Quantidade de regras
+  int qntdRegrasTransicoes;
+  cin >> qntdRegrasTransicoes;
+
+  // Partes das regras de transições
+  int estPartida, estChegada;
+  char simbEntrada, simbPilha;
+  string stringPilha;
+
+  // Regras de transições
+  vector<Regras> regras;
+  for (int i = 0; i < qntdRegrasTransicoes; i++)
+  {
+    cin >> estPartida >> estChegada >> simbEntrada >> simbPilha >> stringPilha;
+
+    regras.push_back(Regras(estPartida, estChegada, simbEntrada, simbPilha, stringPilha));
+  }
 
   // uma string
-  string palavra = "1111";
+  string palavra;
+  cin >> palavra;
 
   // cria o autômato
-  AP automato = AP();
+  AP automato = AP(regras);
   Arvore *raiz = new Arvore(estadoInicial, palavra, simboloInicialPilha);
   Arvore *arvore = automato.criarArvore(raiz);
   automato.imprimirArvore(raiz);
