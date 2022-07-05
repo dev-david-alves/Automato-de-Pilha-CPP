@@ -123,20 +123,18 @@ public:
   // Imprimir árvore
   void imprimirArvore(Arvore *raiz, bool primeiro = true)
   {
-    string final = "";
-    if (raiz->filhos.size() != 0)
-    {
-      final = "; ";
-    }
 
     if (raiz->palavra.length() == 0)
     {
-      cout << "(" << raiz->estado << ", e, " << raiz->pilha << final;
+      cout << "(" << raiz->estado << ", e, " << raiz->pilha;
     }
     else
     {
-      cout << "(" << raiz->estado << ", " << raiz->palavra << ", " << raiz->pilha << final;
+      cout << "(" << raiz->estado << ", " << raiz->palavra << ", " << raiz->pilha;
     }
+
+    if (raiz->filhos.size() != 0)
+      cout << "; ";
 
     for (int i = 0; i < raiz->filhos.size(); i++)
     {
