@@ -104,7 +104,7 @@ public:
   }
 
   // Imprimir árvore
-  void imprimirArvore(Arvore *raiz)
+  void imprimirArvore(Arvore *raiz, bool primeiro = true)
   {
     string final = "";
     if (raiz->filhos.size() != 0)
@@ -123,10 +123,20 @@ public:
 
     for (int i = 0; i < raiz->filhos.size(); i++)
     {
-      imprimirArvore(raiz->filhos[i]);
+      if (raiz->filhos.size() > 1 && i != raiz->filhos.size() - 1)
+      {
+        imprimirArvore(raiz->filhos[i], false);
+        cout << "); ";
+      }
+      else
+      {
+        imprimirArvore(raiz->filhos[i], false);
+        cout << ")";
+      }
     }
 
-    cout << ")";
+    if (primeiro)
+      cout << ")\n";
   }
 };
 
