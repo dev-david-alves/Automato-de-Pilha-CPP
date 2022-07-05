@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -51,10 +52,17 @@ public:
   // Regras
   vector<Regras> regras;
 
-  AP(vector<Regras> regras)
+  // Estados finais
+  vector<int> estadosFinais;
+
+  AP(vector<Regras> regras, vector<int> estadosFinais)
   {
     this->regras = regras;
+    this->estadosFinais = estadosFinais;
   };
+
+  // Aceita
+  bool aceito = false;
 
   // Criar árvore de nós
   Arvore *criarArvore(Arvore *raiz)
@@ -94,6 +102,15 @@ public:
               Arvore *filho = new Arvore(regras[i].estChegada, raiz->palavra, novaPilha);
               raiz->addFilho(filho);
               criarArvore(filho);
+            }
+
+            // Verifica se caiu em alguma das opções de aceitação
+            if (raiz->palavra.length() == 0)
+            {
+              if ((raiz->pilha.size() == 0 || raiz->pilha[0] == 'Z') || find(estadosFinais.begin(), estadosFinais.end(), raiz->estado) != estadosFinais.end())
+              {
+                aceito = true;
+              }
             }
           }
         }
@@ -136,7 +153,19 @@ public:
     }
 
     if (primeiro)
+    {
       cout << ")\n";
+
+      // Escreve se aceita ou não
+      if (aceito)
+      {
+        cout << "aceita\n";
+      }
+      else
+      {
+        cout << "rejeita\n";
+      }
+    }
   }
 };
 
@@ -174,10 +203,12 @@ int main()
   int qntdEstadosFinais;
   cin >> qntdEstadosFinais;
   // estados finais
-  int estadosFinais[qntdEstadosFinais];
+  vector<int> estadosFinais;
+  int aux;
   for (int i = 0; i < qntdEstadosFinais; i++)
   {
-    cin >> estadosFinais[i];
+    cin >> aux;
+    estadosFinais.push_back(aux);
   }
 
   // Quantidade de regras
@@ -203,7 +234,7 @@ int main()
   cin >> palavra;
 
   // cria o autômato
-  AP automato = AP(regras);
+  AP automato = AP(regras, estadosFinais);
   Arvore *raiz = new Arvore(estadoInicial, palavra, simboloInicialPilha);
   Arvore *arvore = automato.criarArvore(raiz);
   automato.imprimirArvore(raiz);
