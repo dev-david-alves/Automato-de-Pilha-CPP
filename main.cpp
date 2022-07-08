@@ -69,49 +69,49 @@ public:
   {
     for (int i = 0; i < regras.size(); i++)
     {
-      if (raiz->estado == regras[i].estPartida)
+      if (raiz->estado != regras[i].estPartida)
+        continue;
+
+      if (raiz->palavra[0] != regras[i].simbEntrada && regras[i].simbEntrada != 'e')
+        continue;
+
+      if (raiz->pilha[0] == regras[i].simbPilha)
       {
-        if (raiz->palavra[0] == regras[i].simbEntrada || regras[i].simbEntrada == 'e')
+        // Monta a nova pilha
+        string novaPilha = "";
+        if (regras[i].stringPilha[0] == 'Z')
         {
-          if (raiz->pilha[0] == regras[i].simbPilha)
+          novaPilha = raiz->pilha;
+        }
+        else if (regras[i].stringPilha[0] == 'e')
+        {
+          novaPilha = raiz->pilha.substr(1);
+        }
+        else
+        {
+          novaPilha = regras[i].stringPilha.substr(0, regras[i].stringPilha.length() - 1) + raiz->pilha;
+        }
+
+        // Cria o novo filho
+        if (raiz->palavra.length() > 0 && regras[i].simbEntrada != 'e')
+        {
+          Arvore *filho = new Arvore(regras[i].estChegada, raiz->palavra.substr(1), novaPilha);
+          raiz->addFilho(filho);
+          criarArvore(filho);
+        }
+        else
+        {
+          Arvore *filho = new Arvore(regras[i].estChegada, raiz->palavra, novaPilha);
+          raiz->addFilho(filho);
+          criarArvore(filho);
+        }
+
+        // Verifica se caiu em alguma das opções de aceitação
+        if (raiz->palavra.length() == 0)
+        {
+          if ((raiz->pilha.size() == 0 || raiz->pilha[0] == 'Z') || find(estadosFinais.begin(), estadosFinais.end(), raiz->estado) != estadosFinais.end())
           {
-            // Monta a nova pilha
-            string novaPilha = "";
-            if (regras[i].stringPilha[0] == 'Z')
-            {
-              novaPilha = raiz->pilha;
-            }
-            else if (regras[i].stringPilha[0] == 'e')
-            {
-              novaPilha = raiz->pilha.substr(1);
-            }
-            else
-            {
-              novaPilha = regras[i].stringPilha.substr(0, regras[i].stringPilha.length() - 1) + raiz->pilha;
-            }
-
-            // Cria o novo filho
-            if (raiz->palavra.length() > 0 && regras[i].simbEntrada != 'e')
-            {
-              Arvore *filho = new Arvore(regras[i].estChegada, raiz->palavra.substr(1), novaPilha);
-              raiz->addFilho(filho);
-              criarArvore(filho);
-            }
-            else
-            {
-              Arvore *filho = new Arvore(regras[i].estChegada, raiz->palavra, novaPilha);
-              raiz->addFilho(filho);
-              criarArvore(filho);
-            }
-
-            // Verifica se caiu em alguma das opções de aceitação
-            if (raiz->palavra.length() == 0)
-            {
-              if ((raiz->pilha.size() == 0 || raiz->pilha[0] == 'Z') || find(estadosFinais.begin(), estadosFinais.end(), raiz->estado) != estadosFinais.end())
-              {
-                aceito = true;
-              }
-            }
+            aceito = true;
           }
         }
       }
@@ -121,9 +121,8 @@ public:
   }
 
   // Imprimir árvore
-  void imprimirArvore(Arvore *raiz, bool primeiro = true)
+  void imprimirArvore(Arvore *raiz)
   {
-
     if (raiz->palavra.length() == 0)
     {
       cout << "(" << raiz->estado << ", e, " << raiz->pilha;
@@ -140,28 +139,13 @@ public:
     {
       if (raiz->filhos.size() > 1 && i != raiz->filhos.size() - 1)
       {
-        imprimirArvore(raiz->filhos[i], false);
+        imprimirArvore(raiz->filhos[i]);
         cout << "); ";
       }
       else
       {
-        imprimirArvore(raiz->filhos[i], false);
+        imprimirArvore(raiz->filhos[i]);
         cout << ")";
-      }
-    }
-
-    if (primeiro)
-    {
-      cout << ")\n";
-
-      // Escreve se aceita ou não
-      if (aceito)
-      {
-        cout << "aceita\n";
-      }
-      else
-      {
-        cout << "rejeita\n";
       }
     }
   }
@@ -236,6 +220,19 @@ int main()
   Arvore *raiz = new Arvore(estadoInicial, palavra, simboloInicialPilha);
   Arvore *arvore = automato.criarArvore(raiz);
   automato.imprimirArvore(raiz);
+
+  // Imprime a última chave
+  cout << ")\n";
+
+  // Escreve se aceita ou não
+  if (automato.aceito)
+  {
+    cout << "aceita\n";
+  }
+  else
+  {
+    cout << "rejeita\n";
+  }
 
   return 0;
 }
